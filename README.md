@@ -9,9 +9,7 @@ This **Telemetry Widget** Will Monitor Flight Pack Voltage and Flight Time As Fo
 
 All **tuning variables** are at the top of the script as follows:
 1. local	ARMSWITCH = "sh"		      --Enter Switch that Enables Arming.  When Disarmed Flight Time Will Not Increment and Audio Messages Are Disabled
-
 2. local FLIGHTTIMERESET = "sc"    --Enter Switch that Resets Flight Time
-
 3. local	TELEMSENSOR = "EVIN"		  --Enter Name of Flight Pack Voltage Telemetry Sensor (RxBt/A1/A2/A3/VFAS/RxBt/etc..)
 
 4. local SAMPLESIZE = 8			      --Number of 1-Second Voltage Samples (Default Value = 8)
