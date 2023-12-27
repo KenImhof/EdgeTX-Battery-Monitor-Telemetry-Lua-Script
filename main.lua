@@ -71,8 +71,8 @@ local function process()
     				end
 			end						
   		end
-		if getLogicalSwitchValue(0) then
-		--if getValue(ARMSWITCH) < 0 then
+		--if getLogicalSwitchValue(0) then
+		if getValue(ARMSWITCH) < 0 then
 			flightTime = flightTime + 1
 			annunciateTime = annunciateTime + 1
 			if annunciateTime >= ANNUNCIATESEC or (annunciateTime >= ANNUNCIATELOWBATTSEC and result <= LOWBATTPERCENT) then
