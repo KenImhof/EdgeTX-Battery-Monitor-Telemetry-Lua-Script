@@ -2,7 +2,7 @@
 
 This **Telemetry Widget** Will Monitor Flight Pack Voltage and Flight Time As Follows:
  1. Annunciates Remaining Battery Pecentage when Battery is First Connected to the Model and Resets Timer to Zero
- 2. If Initial Battery Is Less than the Initial Low Battery Percentage warning, Annunicate Beep, Low Battery, and Remaining Battery Percentage (Default = 50%)
+ 2. If Initial Battery Is Less than the Initial Low Battery Percentage warning, Annunciate Beep, Low Battery, and Remaining Battery Percentage (Default = 50%)
  3. Displays the Highest Voltage Within the Number of Defined 1-Second Samples (Default 8-Seconds)
  4. Annunciates Remaining Battery Percentage and Flight Time When Battery Is Not Low
  5. Annunciates Beep, Remaining Battery Percentage, and Flight Time When Battery is Low
