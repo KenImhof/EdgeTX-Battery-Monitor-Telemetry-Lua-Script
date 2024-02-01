@@ -2,12 +2,12 @@
 ---- KBI Battery Monitor Lua Script Widget Version 1/2/24
 ---- This Telemetry Widget Will Monitor Flight Pack Voltage and Flight Time As Follows:
 ---- 1. Annunciates Remaining Battery Pecentage when Battery is First Connected to the Model and Resets Timer to Zero
----- 2. If Initial Battery Is Less than the Initial Low Battery Percentage warning, Annunicate Beep, Low Battery, and Remaining Battery Percentage (Default = 50%)
+---- 2. If Initial Battery Is Less than the Initial Low Battery Percentage warning, Annunciate Beep, Low Battery, and Remaining Battery Percentage (Default = 50%)
 ---- 3. Displays the Highest Voltage Within the Number of Defined 1-Second Samples (Default 8-Seconds)
----- 4. Annunciates Remaining Battery Percentage and Flight Time When Battery Is Not Low
----- 5. Annunciates Beep, Remaining Battery Percentage, and Flight Time When Battery is Low
+---- 4. Annunciates Remaining Battery Percentage and Flight Time When Battery Is Not Low (Defalt 30-Seconds)
+---- 5. Annunciates Beep, Remaining Battery Percentage, and Flight Time When Battery is Low (Default 15-Seconds)
 ---- 6. Flight Time Increments Every Second When Armed
----- 7. Reset Flight Time Based On the Defined Switch
+---- 7. Reset Flight Time Based On the Defined Switch and When Battery is Connected
 
 ----***** Adjust These Variables For Your Model ******                                                                
 local	ARMSWITCH = "sh"		--Enter Switch that Enables Arming.  When Disarmed Flight Time Will Not Increment and Audio Messages Are Disabled
@@ -17,7 +17,7 @@ local   SAMPLESIZE = 8			--Number of 1-Second Voltage Samples (Default Value = 8
 local	CELLSINPACK = 6			--Number of Cells In Pack         
 local	ANNUNCIATESEC = 30		--Number of Seconds to Annunciate Battery Percentage and Flight Time When Battery Is Not Low (Default Value = 30)
 local	ANNUNCIATELOWBATTSEC = 15	--Number of Seconds to Annunciate Beep, Low Battery Percentage, and Flight Time When Battery At or Below Low Battery Percentage (Default Value = 15)
-local	LOWBATTPERCENT = 25		--Remaining Battery Percent to Start Low Battery Annunciation (Default = 25%)       
+local	LOWBATTPERCENT = 20		--Remaining Battery Percent to Start Low Battery Annunciation (Default = 25%)       
 local	INITIALLOWBATTPERCENT = 50	--Initial Low Battery Warning (Default = 50%)              
 ---- ###############################################################################################################################################################################################
 
@@ -80,8 +80,8 @@ local function process()
 		end
 		if previousresult == 0 and result > 0 then
 				previousresultcount = previousresultcount + 1
-				--When Battery Is First Connected Wait Two Cycles to Get Full Voltage Before Annunication
-				if previousresultcount > 2 then
+				--When Battery Is First Connected Wait Three Cycles to Get Full Voltage Before Annunication
+				if previousresultcount > 3 then
 					flightTime = 0
 					annunciateTime = 0
 					previousresult = result
@@ -96,8 +96,8 @@ local function process()
 
 				end	
 		end
-		--if getLogicalSwitchValue(0) then
-		if getValue(ARMSWITCH) < 0 then
+		if getLogicalSwitchValue(0) then
+		--if getValue(ARMSWITCH) < 0 then
 			flightTime = flightTime + 1
 			annunciateTime = annunciateTime + 1
 			if annunciateTime >= ANNUNCIATESEC or (annunciateTime >= ANNUNCIATELOWBATTSEC and result <= LOWBATTPERCENT) then
