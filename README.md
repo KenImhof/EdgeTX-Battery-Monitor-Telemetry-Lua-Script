@@ -12,13 +12,13 @@ This **Telemetry Widget** Will Monitor Flight Pack Voltage and Flight Time As Fo
 All **tuning variables** are at the top of the script as follows:
 1.	ARMSWITCH = "sh"		    --Enter Switch that Enables Arming.  When Disarmed Flight Time Will Not Increment and Audio Messages Are Disabled
 2.  FLIGHTTIMERESET = "sc"	--Enter Switch that Resets Flight Time
-3.	TELEMSENSOR = "VFAS"		--Enter Name of Flight Pack Voltage Telemetry Sensor (RxBt/A1/A2/A3/VFAS/RxBt/etc..)
+3.	TELEMSENSOR = "VFAS"		--Enter Name of Flight Pack Voltage Telemetry Sensor (RxBt/A1/A2/A3/VFAS/EVIN/RxBt/etc..)
 4.  SAMPLESIZE = 8			    --Number of 1-Second Voltage Samples (Default Value = 8)
 5.	CELLSINPACK = 6			     --Number of Cells In Pack         
 6.	ANNUNCIATESEC = 30		   --Number of Seconds to Annunciate Battery Percentage and Flight Time When Battery Is Not Low (Default Value = 30)
-7.	ANNUNCIATELOWBATTSEC = 15	--Number of Seconds to Annunciate Beep, Low Battery Percentage, and Flight Time When Battery At or Below Low Battery Percentage (Default Value = 15)
-8.	LOWBATTPERCENT = 25		--Remaining Battery Percent to Start Low Battery Annunciation (Default = 25%)       
-9.	INITIALLOWBATTPERCENT = 50	--Initial Low Battery Warning (Default = 50%)      
+7.	ANNUNCIATELOWBATTSEC = 10	--Number of Seconds to Annunciate Beep, Low Battery Percentage, and Flight Time When Battery At or Below Low Battery Percentage (Default Value = 10)
+8.	LOWBATTPERCENT = 8		--Remaining Battery Percent to Start Low Battery Annunciation (Default = 8%)       
+9.	INITIALLOWBATTPERCENT = 50	--Initial Low Battery Warning when Battery is First Connected (Default = 50%)      
 
 **Installation Instructions:** 
 1. Create a new folder (BattMon) on the radio SD Card  \WIDGETS\BattMon
