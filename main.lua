@@ -1,5 +1,5 @@
 ---- ###############################################################################################################################################################################################
----- KBI Battery Monitor Lua Script Widget Version 1/2/24
+---- KBI Battery Monitor Lua Script Widget Version 3/11/24
 ---- This Telemetry Widget Will Monitor Flight Pack Voltage and Flight Time As Follows:
 ---- 1. Annunciates Remaining Battery Pecentage when Battery is First Connected to the Model and Resets Timer to Zero
 ---- 2. If Initial Battery Is Less than the Initial Low Battery Percentage warning, Annunciate Beep, Low Battery, and Remaining Battery Percentage (Default = 50%)
@@ -16,15 +16,18 @@ local	TELEMSENSOR = "VFAS"		--Enter Name of Flight Pack Voltage Telemetry Sensor
 local   SAMPLESIZE = 8			--Number of 1-Second Voltage Samples (Default Value = 8)
 local	CELLSINPACK = 6			--Number of Cells In Pack         
 local	ANNUNCIATESEC = 30		--Number of Seconds to Annunciate Battery Percentage and Flight Time When Battery Is Not Low (Default Value = 30)
-local	ANNUNCIATELOWBATTSEC = 15	--Number of Seconds to Annunciate Beep, Low Battery Percentage, and Flight Time When Battery At or Below Low Battery Percentage (Default Value = 15)
-local	LOWBATTPERCENT = 20		--Remaining Battery Percent to Start Low Battery Annunciation (Default = 25%)       
-local	INITIALLOWBATTPERCENT = 50	--Initial Low Battery Warning (Default = 50%)              
+local	ANNUNCIATELOWBATTSEC = 10	--Number of Seconds to Annunciate Beep, Low Battery Percentage, and Flight Time When Battery At or Below Low Battery Percentage (Default Value = 15)
+local	LOWBATTPERCENT = 8		--Remaining Battery Percent to Start Low Battery Annunciation (Default = 8%)       
+local	INITIALLOWBATTPERCENT = 50	--Initial Low Battery Warning When Battery if First Connected (Default = 50%)              
 ---- ###############################################################################################################################################################################################
 
 local options = {
   { "Color", COLOR, COLOR_THEME_SECONDARY1 },
   { "Shadow", BOOL, 0 }
 }
+local bootupcomplete = 0
+local currentvbat = 0
+local vbatread = 0
 local lastupdate = 0
 local vbat = 0
 local battArray = {}
@@ -44,60 +47,66 @@ local function create(zone, options)
   end
   return battmonitor
 end
-
 local function update(battmonitor, options)
   battmonitor.options = options
 end
-
 local function process()
 	if getValue(FLIGHTTIMERESET) >= 0 then
 		flightTime = 0
 		annunciateTime = 0
 	end
+	vbatread = getValue(TELEMSENSOR)
+	--Keep Highest Read Voltage For Each Second
+	if vbatread > currentvbat then
+		currentvbat = vbatread
+	end
 	if not(lastupdate == getRtcTime())  then
 		lastupdate = getRtcTime()
-		
-		battArray[battIndex] = getValue(TELEMSENSOR)
-		battIndex = battIndex + 1
-		if battIndex > SAMPLESIZE -1 then
-			battIndex = 0
+		battArray[battIndex] = currentvbat
+		currentvbat = 0
+		if bootupcomplete == 1 then
+			battIndex = battIndex + 1
+			if battIndex > SAMPLESIZE -1 then
+				battIndex = 0
+			end
 		end
-		--Find Max Value Within Last 8-Seconds
+		--Find Max Value Within Last SAMPLESIZE Default = 8-Seconds
 		vbat = 0
 		for i = 0, SAMPLESIZE, 1 do
 			if battArray[i] > vbat then
 				vbat = battArray[i]
 			end
-  			for i, v in ipairs(myArrayPercentList) do
-    				if v[1] >= vbat/CELLSINPACK then
-      					result = v[2]
-      						break
-    				end
-			end						
-  		end
+		end
+  		for i, v in ipairs(myArrayPercentList) do
+    			if v[1] >= vbat/CELLSINPACK then
+      				result = v[2]
+      				break
+    			end
+		end						
 		if result == 0 then
 			previousresult = 0
+			bootupcomplete = 0
+			previousresultcount = 0
 		end
-		if previousresult == 0 and result > 0 then
+		if bootupcomplete == 0 and result > 0 then
+			if previousresult > 0 and result <= previousresult then
 				previousresultcount = previousresultcount + 1
-				--When Battery Is First Connected Wait Three Cycles to Get Full Voltage Before Annunication
-				if previousresultcount > 3 then
-					flightTime = 0
-					annunciateTime = 0
-					previousresult = result
-					previousresultcount = 0	
-					if result <= 50 then
-						playTone(0,250,PLAY_NOW)
-						playFile("/SOUNDS/en/lowbat.wav")	
-						
-					end
-					playNumber(result,0)
-					playFile("/SOUNDS/en/system/percent0.wav")
-
-				end	
-		end
-		if getLogicalSwitchValue(0) then
-		--if getValue(ARMSWITCH) < 0 then
+			end
+			previousresult = result
+			--When Battery Is First Connected Wait a Few Cycles With Same Result to Get Full Voltage Before Annunication
+			if previousresultcount >= 5 then
+				flightTime = 0
+				annunciateTime = 0
+				bootupcomplete = 1
+				if result <= 50 then
+					playTone(0,250,PLAY_NOW)
+					playFile("/SOUNDS/en/lowbat.wav")			
+				end
+				playNumber(result,0)
+				playFile("/SOUNDS/en/system/percent0.wav")
+			end	
+		--elseif getLogicalSwitchValue(0) then
+		elseif getValue(ARMSWITCH) < 0 then
 			flightTime = flightTime + 1
 			annunciateTime = annunciateTime + 1
 			if annunciateTime >= ANNUNCIATESEC or (annunciateTime >= ANNUNCIATELOWBATTSEC and result <= LOWBATTPERCENT) then
@@ -117,7 +126,6 @@ local function process()
 				playFile("/SOUNDS/en/system/second1.wav")
 			end
 		end
-
   	end	
 	return
 end
