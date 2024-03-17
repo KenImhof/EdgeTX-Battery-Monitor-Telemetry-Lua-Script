@@ -111,7 +111,7 @@ local function process()
 			annunciateTime = annunciateTime + 1
 			if annunciateTime >= ANNUNCIATESEC or (annunciateTime >= ANNUNCIATELOWBATTSEC and result <= LOWBATTPERCENT) then
 				annunciateTime = 0
-				if result <=25 then
+				if result <= LOWBATTPERCENT then
 					playTone(0,200,PLAY_NOW)
 				end	
 			
